@@ -1,0 +1,16 @@
+[
+{
+  "modid": "bravenewworld",
+  "name": "Brave New World",
+  "description": "Minecraft 1.8. It's a Brave New World.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Cognoscan", "EmeraldDusk", "cantdrawatall", "tremegorn"],
+  "credits": "People and stuff",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
