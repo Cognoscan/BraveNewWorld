@@ -1,4 +1,5 @@
-package com.cognoscan.bravenewworld;
+package com.cognoscan.bravenewworld.Items;
+
 
 public class SteelNugget extends BNWItem {
 

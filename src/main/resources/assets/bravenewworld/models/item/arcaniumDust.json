@@ -1,7 +1,7 @@
 {
     "parent": "builtin/generated",
     "textures": {
-        "layer0": "bravenewworld:items/arcaniteDust"
+        "layer0": "bravenewworld:items/arcaniumDust"
     },
     "display": {
         "thirdperson": {

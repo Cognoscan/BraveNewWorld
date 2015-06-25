@@ -1,29 +1,34 @@
-package com.cognoscan.bravenewworld;
+package com.cognoscan.bravenewworld.Blocks;
 
+import com.cognoscan.bravenewworld.BraveNewWorld;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public abstract class BNWItem extends Item
+public abstract class BNWBlock extends Block
 {
-	
 	public abstract String getName();
 	
-	public BNWItem()
+	public BNWBlock (Material material)
 	{
-		GameRegistry.registerItem(this, getName());
-		this.setUnlocalizedName(BraveNewWorld.MODID + "_" + getName());
+		super(material);
+		GameRegistry.registerBlock(this, getName());
+		setUnlocalizedName(BraveNewWorld.MODID + "_" + getName());
 	}
 	
 	public void RegisterModel(ItemModelMesher mesher)
 	{
 		mesher.register(
-				this, 
+				Item.getItemFromBlock(this), 
 				0,
 				new ModelResourceLocation(BraveNewWorld.MODID + ":" + getName(), "inventory")
 				);
 	}
 	
+
 }
