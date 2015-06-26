@@ -2,9 +2,10 @@ package com.cognoscan.bravenewworld.TileEntities;
 
 import java.util.Iterator;
 import java.util.List;
+
+import com.cognoscan.bravenewworld.Blocks.Toolbox;
 import net.minecraft.client.renderer.tileentity.TileEntityChestRenderer;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockChest;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -129,7 +130,7 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
      */
     public String getName()
     {
-        return this.hasCustomName() ? this.customName : "container.toolbox";
+        return this.hasCustomName() ? this.customName : "Toolbox";
     }
 
     /**
@@ -221,11 +222,19 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
         ++this.ticksSinceSync;
         float f;
 
+        // Refresh number of connected players on this inventory
         if (!this.worldObj.isRemote && this.numPlayersUsing != 0 && (this.ticksSinceSync + i + j + k) % 200 == 0)
         {
             this.numPlayersUsing = 0;
             f = 5.0F;
-            List list = this.worldObj.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB((double)((float)i - f), (double)((float)j - f), (double)((float)k - f), (double)((float)(i + 1) + f), (double)((float)(j + 1) + f), (double)((float)(k + 1) + f)));
+            List list = this.worldObj.getEntitiesWithinAABB(EntityPlayer.class, 
+            		new AxisAlignedBB(
+            				(double)((float)i - f), 
+            				(double)((float)j - f), 
+            				(double)((float)k - f), 
+            				(double)((float)(i + 1) + f), 
+            				(double)((float)(j + 1) + f), 
+            				(double)((float)(k + 1) + f)));
             Iterator iterator = list.iterator();
 
             while (iterator.hasNext())
@@ -236,7 +245,7 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
                 {
                     IInventory iinventory = ((ContainerChest)entityplayer.openContainer).getLowerChestInventory();
 
-                    if (iinventory == this || iinventory instanceof InventoryLargeChest && ((InventoryLargeChest)iinventory).isPartOfLargeChest(this))
+                    if (iinventory == this)
                     {
                         ++this.numPlayersUsing;
                     }
@@ -248,18 +257,22 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
         f = 0.1F;
         double d2;
 
+        // Open chest
         if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F)
         {
             double d1 = (double)i + 0.5D;
             d2 = (double)k + 0.5D;
 
-            this.worldObj.playSoundEffect(d1, (double)j + 0.5D, d2, "random.chestopen", 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+            this.worldObj.playSoundEffect(d1, (double)j + 0.5D, d2,
+            		"random.chestopen", 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
         }
 
+        // Handle the opening and closing of the chest
         if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F)
         {
             float f1 = this.lidAngle;
 
+            // Open or close as required
             if (this.numPlayersUsing > 0)
             {
                 this.lidAngle += f;
@@ -269,25 +282,27 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
                 this.lidAngle -= f;
             }
 
-            if (this.lidAngle > 1.0F)
-            {
-                this.lidAngle = 1.0F;
-            }
-
-            float f2 = 0.5F;
-
-            if (this.lidAngle < f2 && f1 >= f2)
+            // Play closing sound effect when past the halfway point.
+            if (this.lidAngle < 0.5f && f1 >= 0.5f)
             {
                 d2 = (double)i + 0.5D;
                 double d0 = (double)k + 0.5D;
 
-                this.worldObj.playSoundEffect(d2, (double)j + 0.5D, d0, "random.chestclosed", 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
+                this.worldObj.playSoundEffect(d2, (double)j + 0.5D, d0, 
+                		"random.chestclosed", 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
             }
 
-            if (this.lidAngle < 0.0F)
-            {
-                this.lidAngle = 0.0F;
-            }
+        }
+        
+        // Angle max is 1.0f
+        if (this.lidAngle > 1.0F)
+        {
+            this.lidAngle = 1.0F;
+        }
+        // Angle min is 0.0f
+        if (this.lidAngle < 0.0F)
+        {
+            this.lidAngle = 0.0F;
         }
     }
 
@@ -315,19 +330,15 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
 
             ++this.numPlayersUsing;
             this.worldObj.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
-            this.worldObj.notifyNeighborsOfStateChange(this.pos, this.getBlockType());
-            this.worldObj.notifyNeighborsOfStateChange(this.pos.down(), this.getBlockType());
         }
     }
 
     public void closeInventory(EntityPlayer player)
     {
-        if (!player.isSpectator() && this.getBlockType() instanceof BlockChest)
+        if (!player.isSpectator() && this.getBlockType() instanceof Toolbox)
         {
             --this.numPlayersUsing;
             this.worldObj.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
-            this.worldObj.notifyNeighborsOfStateChange(this.pos, this.getBlockType());
-            this.worldObj.notifyNeighborsOfStateChange(this.pos.down(), this.getBlockType());
         }
     }
 

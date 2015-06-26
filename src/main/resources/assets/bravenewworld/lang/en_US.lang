@@ -1,9 +1,15 @@
-item.BraveNewWorld_arcaniteIngot.name=Arcanite Ingot
-item.BraveNewWorld_arcaniumDust.name=Arcanium Dust
-item.BraveNewWorld_jobOrder.name=Job Order
-item.BraveNewWorld_steelIngot.name=Steel Ingot
-item.BraveNewWorld_steelNugget.name=Steel Nugget
-item.BraveNewWorld_tallowBrick.name=Tallow Brick
-item.BraveNewWorld_wroughtIron.name=Wrought Iron
+item.bravenewworld_arcaniteIngot.name=Arcanite Ingot
+item.bravenewworld_arcaniumDust.name=Arcanium Dust
+item.bravenewworld_jobOrder.name=Job Order
+item.bravenewworld_steelIngot.name=Steel Ingot
+item.bravenewworld_steelNugget.name=Steel Nugget
+item.bravenewworld_tallowBrick.name=Tallow Brick
+item.bravenewworld_wroughtIron.name=Wrought Iron
 
-tile.BraveNewWorld_tallowBlock.name=Tallow Block
+tile.bravenewworld_tallowBlock.name=Tallow Block
+tile.bravenewworld_arcaniumOre.name=Arcanium Ore
+
+item.bravenewworld_arcaniteHelmet.name=Arcanite Helmet
+item.bravenewworld_arcaniteChestplate.name=Arcanite Chestplate
+item.bravenewworld_arcaniteLeggings.name=Arcanite Leggings
+item.bravenewworld_arcaniteBoots.name=Arcanite Boots
