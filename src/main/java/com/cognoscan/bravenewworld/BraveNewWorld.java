@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.EnumHelper;
@@ -49,6 +50,12 @@ public class BraveNewWorld
 	public static BNWArmor arcaniteLeggings;
 	public static BNWArmor arcaniteBoots;
 	
+	public static Item arcanitePickaxe;
+	public static Item arcaniteAxe;
+	public static Item arcaniteShovel;
+	public static Item arcaniteHoe;
+	public static Item arcaniteSword;
+	
 	BNWEventHandler eventHandler;
 
 	ArmorMaterial arcaniteArmor = EnumHelper.addArmorMaterial(
@@ -57,6 +64,14 @@ public class BraveNewWorld
 			15,
 			new int[] {2, 6, 5, 2},
 			25);
+	
+	ToolMaterial arcaniteTool = EnumHelper.addToolMaterial(
+			"arcaniteTool",
+			2, // Harvest Level
+			250, // Max uses
+			6.0f, // Efficiency
+			2.0f, // Damage
+			22); // Enchantability
     
     @Instance(value = BraveNewWorld.MODID) // Tell Forge what instance to use
 	public static BraveNewWorld instance;
@@ -84,6 +99,12 @@ public class BraveNewWorld
 		arcaniteLeggings   = new ArcaniteArmor(arcaniteArmor, 2, "Leggings");
 		arcaniteBoots      = new ArcaniteArmor(arcaniteArmor, 3, "Boots");
 		
+		arcanitePickaxe = new ArcanitePickaxe(arcaniteTool);
+		arcaniteAxe     = new ArcaniteAxe(    arcaniteTool);
+		arcaniteShovel  = new ArcaniteShovel( arcaniteTool);
+		arcaniteHoe     = new ArcaniteHoe(    arcaniteTool);
+		arcaniteSword   = new ArcaniteSword(  arcaniteTool);
+		
 		GameRegistry.registerTileEntity(TileEntityToolbox.class, "TE_toolbox");
 		
 		GameRegistry.registerWorldGenerator(eventHandler, 0);
@@ -92,11 +113,17 @@ public class BraveNewWorld
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+    	///////////////////////////////////////////////////////////////////
+    	// Horstpower Recipes
+    	///////////////////////////////////////////////////////////////////
     	GameRegistry.addShapelessRecipe(new ItemStack(steelNugget, 9), steelIngot);
     	GameRegistry.addShapedRecipe(new ItemStack(steelIngot),"AAA","AAA","AAA",'A',steelNugget);
     	GameRegistry.addShapedRecipe(new ItemStack(tallowBlock), "AA", "AA", 'A', tallowBrick);
     	GameRegistry.addShapelessRecipe(new ItemStack(tallowBrick, 4), tallowBlock);
     	
+    	///////////////////////////////////////////////////////////////////
+    	// Lichcraft Recipes
+    	///////////////////////////////////////////////////////////////////
     	GameRegistry.addShapedRecipe(new ItemStack(arcaniteIngot),
     			" A ",
     			"ABA",
@@ -123,6 +150,37 @@ public class BraveNewWorld
     			"A A",
     			"A A",
     			'A', arcaniteIngot);
+    	// Tool recipes
+    	GameRegistry.addShapedRecipe(new ItemStack(arcanitePickaxe), 
+    			"AAA",
+    			" B ",
+    			" B ",
+    			'A', arcaniteIngot,
+    			'B', Items.stick);
+    	GameRegistry.addShapedRecipe(new ItemStack(arcaniteAxe), 
+    			"AA",
+    			"AB",
+    			" B",
+    			'A', arcaniteIngot,
+    			'B', Items.stick);
+    	GameRegistry.addShapedRecipe(new ItemStack(arcaniteHoe), 
+    			"AA",
+    			"B ",
+    			"B ",
+    			'A', arcaniteIngot,
+    			'B', Items.stick);
+    	GameRegistry.addShapedRecipe(new ItemStack(arcaniteShovel), 
+    			"A",
+    			"B",
+    			"B",
+    			'A', arcaniteIngot,
+    			'B', Items.stick);
+    	GameRegistry.addShapedRecipe(new ItemStack(arcaniteSword), 
+    			"A",
+    			"A",
+    			"B",
+    			'A', arcaniteIngot,
+    			'B', Items.stick);
     	
     	// Generate Items
     	if (event.getSide() == Side.CLIENT)
@@ -144,6 +202,12 @@ public class BraveNewWorld
 			arcaniteChestplate.RegisterModel(mesher);
 			arcaniteLeggings.RegisterModel(mesher);
 			arcaniteBoots.RegisterModel(mesher);
+			
+			((ArcanitePickaxe)arcanitePickaxe).RegisterModel(mesher);
+			((ArcaniteAxe)arcaniteAxe).RegisterModel(mesher);
+			((ArcaniteShovel)arcaniteShovel).RegisterModel(mesher);
+			((ArcaniteHoe)arcaniteHoe).RegisterModel(mesher);
+			((ArcaniteSword)arcaniteSword).RegisterModel(mesher);
 			
 			ClientRegistry.bindTileEntitySpecialRenderer(TileEntityToolbox.class, new RenderToolbox());
 		}
