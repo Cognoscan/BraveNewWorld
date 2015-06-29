@@ -5,6 +5,7 @@ import com.cognoscan.bravenewworld.Items.*;
 import com.cognoscan.bravenewworld.Renderers.*;
 import com.cognoscan.bravenewworld.TileEntities.*;
 import com.cognoscan.bravenewworld.armors.*;
+import com.cognoscan.bravenewworld.guis.GuiHandlerToolbox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -23,6 +24,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -43,6 +45,7 @@ public class BraveNewWorld
     
     public static BNWBlock tallowBlock;
     public static BNWBlock arcaniumOre;
+    public static BNWBlock boxMarker;
 	public static Block toolbox;
 	
 	public static BNWArmor arcaniteHelmet;
@@ -88,6 +91,7 @@ public class BraveNewWorld
 		steelNugget = new SteelNugget();
 		tallowBrick = new TallowBrick();
 		wroughtIron = new WroughtIron();
+		boxMarker = new BoxMarker();
 		
 		tallowBlock = new TallowBlock();
 		arcaniumOre = new ArcaniumOre();
@@ -108,6 +112,9 @@ public class BraveNewWorld
 		GameRegistry.registerTileEntity(TileEntityToolbox.class, "TE_toolbox");
 		
 		GameRegistry.registerWorldGenerator(eventHandler, 0);
+		
+		NetworkRegistry.INSTANCE.registerGuiHandler(BraveNewWorld.instance, GuiHandlerRegistry.getInstance());
+		GuiHandlerRegistry.getInstance().registerGuiHandler(new GuiHandlerToolbox(), GuiHandlerToolbox.getGuiId());
 	}
     
     @EventHandler
@@ -194,6 +201,7 @@ public class BraveNewWorld
 			steelNugget.RegisterModel(mesher);
 			tallowBrick.RegisterModel(mesher);
 			wroughtIron.RegisterModel(mesher);
+			boxMarker.RegisterModel(mesher);
 			
 			tallowBlock.RegisterModel(mesher);
 			arcaniumOre.RegisterModel(mesher);

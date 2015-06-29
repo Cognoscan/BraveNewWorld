@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.cognoscan.bravenewworld.Blocks.Toolbox;
+
 import net.minecraft.client.renderer.tileentity.TileEntityChestRenderer;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,16 +17,23 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
-import net.minecraft.tileentity.TileEntityLockable;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlayerListBox, IInventory
+public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBox, IInventory
 {
-    private ItemStack[] chestContents = new ItemStack[27];
+	// 0-26 are inventory
+	// 27 is X Coord slot
+	// 28 is Y Coord slot
+	// 29 is Z Coord slot
+    private ItemStack[] chestContents = new ItemStack[31];
     /** The current angle of the lid (between 0 and 1) */
     public float lidAngle;
     /** The angle of the lid last tick */
@@ -34,27 +42,15 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
     public int numPlayersUsing;
     /** Server sync counter (once per 20 ticks) */
     private int ticksSinceSync;
-    private String customName;
 
-    public TileEntityToolbox()
-    {
-    }
+    public int getSizeInventory() { return 31; }
 
-    /**
-     * Returns the number of slots in the inventory.
-     */
-    public int getSizeInventory()
-    {
-        return 27;
-    }
-
-    /**
-     * Returns the stack in slot i
-     */
     public ItemStack getStackInSlot(int index)
     {
         return this.chestContents[index];
     }
+    
+    public int getInventoryStackLimit() { return 64; }
 
     /**
      * Removes from an inventory slot (first arg) up to a specified number (second arg) of items and returns them in a
@@ -125,37 +121,22 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
         this.markDirty();
     }
 
-    /**
-     * Gets the name of this command sender (usually username, but possibly "Rcon")
-     */
     public String getName()
     {
-        return this.hasCustomName() ? this.customName : "Toolbox";
+        return "container.toolbox.name";
     }
-
-    /**
-     * Returns true if this thing is named
-     */
-    public boolean hasCustomName()
-    {
-        return this.customName != null && this.customName.length() > 0;
-    }
-
-    public void setCustomName(String name)
-    {
-        this.customName = name;
-    }
+    
+    public boolean hasCustomName() { return false; }
+    
+	public IChatComponent getDisplayName() {
+		return this.hasCustomName() ? new ChatComponentText(this.getName()) : new ChatComponentTranslation(this.getName());
+	}
 
     public void readFromNBT(NBTTagCompound compound)
     {
         super.readFromNBT(compound);
         NBTTagList nbttaglist = compound.getTagList("Items", 10);
         this.chestContents = new ItemStack[this.getSizeInventory()];
-
-        if (compound.hasKey("CustomName", 8))
-        {
-            this.customName = compound.getString("CustomName");
-        }
 
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
@@ -186,20 +167,6 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
         }
 
         compound.setTag("Items", nbttaglist);
-
-        if (this.hasCustomName())
-        {
-            compound.setString("CustomName", this.customName);
-        }
-    }
-
-    /**
-     * Returns the maximum stack size for a inventory slot. Seems to always be 64, possibly will be extended. *Isn't
-     * this more of a set than a get?*
-     */
-    public int getInventoryStackLimit()
-    {
-        return 64;
     }
 
     /**
@@ -361,13 +328,9 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
 
     public String getGuiID()
     {
-        return "minecraft:chest";
+        return "bravenewworld:toolbox";
     }
 
-    public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn)
-    {
-        return new ContainerChest(playerInventory, this, playerIn);
-    }
 
     public int getField(int id)
     {
@@ -389,47 +352,4 @@ public class TileEntityToolbox extends TileEntityLockable implements IUpdatePlay
         }
     }
 
-    static final class SwitchEnumFacing
-        {
-            static final int[] field = new int[EnumFacing.values().length];
-
-            static
-            {
-                try
-                {
-                    field[EnumFacing.NORTH.ordinal()] = 1;
-                }
-                catch (NoSuchFieldError var4)
-                {
-                    ;
-                }
-
-                try
-                {
-                    field[EnumFacing.SOUTH.ordinal()] = 2;
-                }
-                catch (NoSuchFieldError var3)
-                {
-                    ;
-                }
-
-                try
-                {
-                    field[EnumFacing.EAST.ordinal()] = 3;
-                }
-                catch (NoSuchFieldError var2)
-                {
-                    ;
-                }
-
-                try
-                {
-                    field[EnumFacing.WEST.ordinal()] = 4;
-                }
-                catch (NoSuchFieldError var1)
-                {
-                    ;
-                }
-            }
-        }
 }
