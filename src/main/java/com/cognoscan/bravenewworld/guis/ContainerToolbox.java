@@ -83,35 +83,48 @@ public class ContainerToolbox extends Container {
 	}
 	
 	@Override
-	public ItemStack transferStackInSlot(EntityPlayer player, int sourceSlotIndex)
+	public ItemStack transferStackInSlot(EntityPlayer player, int index)
 	{
-		Slot sourceSlot = (Slot)inventorySlots.get(sourceSlotIndex);
-		if (sourceSlot == null || !sourceSlot.getHasStack()) return null;
-		ItemStack sourceStack = sourceSlot.getStack();
-		ItemStack copyOfSourceStack = sourceStack.copy();
-		
-		// Attempt to place pickaxe appropriately, and avoid plaing into X/Y/Z slots
-		if (sourceSlotIndex >= 0 && sourceSlotIndex < VANILLA_SLOT_COUNT) {
-			if (sourceStack.getItem() instanceof ItemPickaxe) {
-				// Pickaxes don't go into the inventory as a result of this
-				if (!mergeItemStack(sourceStack, TOOLBOX_PICK_SLOT_INDEX, TOOLBOX_PICK_SLOT_INDEX+1, false)) {
-					return null;
-				}
-			} else if (!mergeItemStack(sourceStack, HOTBAR_SLOT_COUNT+PLAYER_INVENTORY_SLOT_COUNT, TOOLBOX_X_SLOT_INDEX, false)) {
-				return null;
-			} else {
-				return null; // Don't let it go into X/Y/Z slots
-			}
-		}
-		
-		if (sourceStack.stackSize == 0) {
-			sourceSlot.putStack(null);
-		} else {
-			sourceSlot.onSlotChanged();
-		}
-		
-		sourceSlot.onPickupFromSlot(player, sourceStack);
-		return copyOfSourceStack;
+        ItemStack itemstack = null;
+        Slot slot = (Slot)this.inventorySlots.get(index);
+
+        if (slot != null && slot.getHasStack())
+        {
+            ItemStack itemstack1 = slot.getStack();
+            itemstack = itemstack1.copy();
+
+            // Check if coming from inventory
+            if (index < PLAYER_INVENTORY_SLOT_COUNT)
+            {
+            	// Try to move to pickaxe slot if it is a pickaxe
+            	if (itemstack1.getItem() instanceof ItemPickaxe) {
+            		if (!this.mergeItemStack(itemstack1, TOOLBOX_PICK_SLOT_INDEX, TOOLBOX_PICK_SLOT_INDEX+1, true)) {
+            			return null;
+            		}
+            	}
+            	// Try to move to Toolbox storage
+            	else if (!this.mergeItemStack(itemstack1, PLAYER_INVENTORY_SLOT_COUNT, TOOLBOX_X_SLOT_INDEX, true))
+                {
+                    return null;
+                }
+            }
+            // Not inventory, so coming from toolbox. Try to move to inventory 
+            else if (!this.mergeItemStack(itemstack1, 0, PLAYER_INVENTORY_SLOT_COUNT, false))
+            {
+                return null;
+            }
+
+            if (itemstack1.stackSize == 0)
+            {
+                slot.putStack((ItemStack)null);
+            }
+            else
+            {
+                slot.onSlotChanged();
+            }
+        }
+
+        return itemstack;
 	}
 	
 	public class SlotPickaxe extends Slot {

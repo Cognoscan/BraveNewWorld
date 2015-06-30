@@ -1,0 +1,9 @@
+{
+    "variants": {
+	"facing=east": { "model": "bravenewworld:toolbox" },
+	"facing=west": { "model": "bravenewworld:toolbox" },
+	"facing=north": { "model": "bravenewworld:toolbox" },
+	"facing=south": { "model": "bravenewworld:toolbox" },
+	"inventory": { "model": "bravenewworld:toolbox" }
+    }
+}

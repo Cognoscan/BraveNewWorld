@@ -217,6 +217,7 @@ public class BraveNewWorld
 			((ArcaniteHoe)arcaniteHoe).RegisterModel(mesher);
 			((ArcaniteSword)arcaniteSword).RegisterModel(mesher);
 			
+			((Toolbox)toolbox).RegisterModel(mesher);
 			ClientRegistry.bindTileEntitySpecialRenderer(TileEntityToolbox.class, new RenderToolbox());
 		}
     }

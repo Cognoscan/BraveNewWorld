@@ -176,27 +176,6 @@ public class Toolbox extends BlockContainer
         return true;
     }
 
-    public ILockableContainer getLockableContainer(World worldIn, BlockPos pos)
-    {
-        TileEntity tileentity = worldIn.getTileEntity(pos);
-
-        if (!(tileentity instanceof TileEntityToolbox))
-        {
-            return null;
-        }
-        else
-        {
-            Object object = (TileEntityToolbox)tileentity;
-
-            if (this.isBlocked(worldIn, pos))
-            {
-                return null;
-            }
-
-            return (ILockableContainer)object;
-        }
-    }
-
     /**
      * Returns a new instance of a block's tile entity class. Called on placing the block.
      */
