@@ -1,13 +1,16 @@
 package com.cognoscan.bravenewworld.Blocks;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import com.cognoscan.bravenewworld.BraveNewWorld;
+import com.cognoscan.bravenewworld.TileEntities.TileEntityToolbox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRedstoneOre;
 import net.minecraft.block.BlockTorch;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -21,6 +24,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -33,7 +38,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BoxMarker extends BNWBlock 
+public class BoxMarker extends BNWBlock
 {
 	
 	public BoxMarker ()
@@ -138,11 +143,16 @@ public class BoxMarker extends BNWBlock
             return false;
         }
     }
+    
+    @Override
+    public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
+    {
+    	// Never drop the marker
+    }
 
     @SideOnly(Side.CLIENT)
     public EnumWorldBlockLayer getBlockLayer()
     {
         return EnumWorldBlockLayer.CUTOUT;
     }
-
 }

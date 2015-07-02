@@ -5,12 +5,13 @@ item.bravenewworld_steelIngot.name=Steel Ingot
 item.bravenewworld_steelNugget.name=Steel Nugget
 item.bravenewworld_tallowBrick.name=Tallow Brick
 item.bravenewworld_wroughtIron.name=Wrought Iron
-item.bravenewworld_boxMarker.name=Quarry Marker
+item.bravenewworld_boxMarkerItem.name=Quarry Marker
 
 tile.bravenewworld_toolbox.name=Toolbox
 
 tile.bravenewworld_tallowBlock.name=Tallow Block
 tile.bravenewworld_arcaniumOre.name=Arcanium Ore
+tile.bravenewworld_boxMarker.name=Quarry Marker
 
 item.bravenewworld_arcaniteHelmet.name=Arcanite Helmet
 item.bravenewworld_arcaniteChestplate.name=Arcanite Chestplate

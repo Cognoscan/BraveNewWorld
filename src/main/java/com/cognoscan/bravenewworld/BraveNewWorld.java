@@ -42,6 +42,7 @@ public class BraveNewWorld
     public static BNWItem steelNugget;
     public static BNWItem tallowBrick;
     public static BNWItem wroughtIron;
+    public static BNWItem boxMarkerItem;
     
     public static BNWBlock tallowBlock;
     public static BNWBlock arcaniumOre;
@@ -91,8 +92,9 @@ public class BraveNewWorld
 		steelNugget = new SteelNugget();
 		tallowBrick = new TallowBrick();
 		wroughtIron = new WroughtIron();
-		boxMarker = new BoxMarker();
+		boxMarkerItem = new boxMarkerItem();
 		
+		boxMarker = new BoxMarker();
 		tallowBlock = new TallowBlock();
 		arcaniumOre = new ArcaniumOre();
 		
@@ -201,8 +203,9 @@ public class BraveNewWorld
 			steelNugget.RegisterModel(mesher);
 			tallowBrick.RegisterModel(mesher);
 			wroughtIron.RegisterModel(mesher);
-			boxMarker.RegisterModel(mesher);
+			boxMarkerItem.RegisterModel(mesher);
 			
+			boxMarker.RegisterModel(mesher);
 			tallowBlock.RegisterModel(mesher);
 			arcaniumOre.RegisterModel(mesher);
 			

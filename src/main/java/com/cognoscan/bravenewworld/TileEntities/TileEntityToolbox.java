@@ -3,6 +3,7 @@ package com.cognoscan.bravenewworld.TileEntities;
 import java.util.Iterator;
 import java.util.List;
 
+import com.cognoscan.bravenewworld.BraveNewWorld;
 import com.cognoscan.bravenewworld.Blocks.Toolbox;
 
 import net.minecraft.client.renderer.tileentity.TileEntityChestRenderer;
@@ -42,12 +43,42 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
     public int numPlayersUsing;
     /** Server sync counter (once per 20 ticks) */
     private int ticksSinceSync;
+    
+    private int xDist;
+    private int yDist;
+    private int zDist;
+    private boolean isOn;
+    private BlockPos nextBlock;
+    
+    public void setDist(int dim, BlockPos markerPos) {
+    	if (!isOn)
+    	{
+    		switch(dim) {
+    		case 0: xDist = markerPos.getX(); break;
+    		case 1: yDist = markerPos.getY(); break;
+    		case 2: zDist = markerPos.getZ(); break;
+    		}
+
+    		this.worldObj.destroyBlock(markerPos.east().down(), true);
+    	}
+    }
 
     public int getSizeInventory() { return 31; }
 
     public ItemStack getStackInSlot(int index)
     {
-        return this.chestContents[index];
+    	if (index >= 27 && index <= 29) {
+    		ItemStack marker = new ItemStack(BraveNewWorld.boxMarkerItem);
+    		NBTTagCompound nbt = new NBTTagCompound();
+    		nbt.setInteger("dim", index - 27);
+    		nbt.setInteger("boxX", pos.getX());
+    		nbt.setInteger("boxY", pos.getY());
+    		nbt.setInteger("boxZ", pos.getZ());
+    		marker.setTagCompound(nbt);
+    		return marker;
+    	} else {
+    		return this.chestContents[index];
+    	}
     }
     
     public int getInventoryStackLimit() { return 64; }
@@ -58,34 +89,41 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
      */
     public ItemStack decrStackSize(int index, int count)
     {
-        if (this.chestContents[index] != null)
-        {
-            ItemStack itemstack;
+    	if (index < 27 || index == 30)
+    	{
+    		if (this.chestContents[index] != null)
+    		{
+    			ItemStack itemstack;
 
-            if (this.chestContents[index].stackSize <= count)
-            {
-                itemstack = this.chestContents[index];
-                this.chestContents[index] = null;
-                this.markDirty();
-                return itemstack;
-            }
-            else
-            {
-                itemstack = this.chestContents[index].splitStack(count);
+    			if (this.chestContents[index].stackSize <= count)
+    			{
+    				itemstack = this.chestContents[index];
+    				this.chestContents[index] = null;
+    				this.markDirty();
+    				return itemstack;
+    			}
+    			else
+    			{
+    				itemstack = this.chestContents[index].splitStack(count);
 
-                if (this.chestContents[index].stackSize == 0)
-                {
-                    this.chestContents[index] = null;
-                }
+    				if (this.chestContents[index].stackSize == 0)
+    				{
+    					this.chestContents[index] = null;
+    				}
 
-                this.markDirty();
-                return itemstack;
-            }
-        }
-        else
-        {
-            return null;
-        }
+    				this.markDirty();
+    				return itemstack;
+    			}
+    		}
+    		else
+    		{
+    			return null;
+    		}
+    	} else if (index >= 27 && index < 30) {
+    		return getStackInSlot(index);
+    	} else {
+    		return null;
+    	}
     }
 
     /**
@@ -148,11 +186,30 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
                 this.chestContents[j] = ItemStack.loadItemStackFromNBT(nbttagcompound1);
             }
         }
+        
+        this.xDist = compound.getInteger("xDist");
+        this.yDist = compound.getInteger("yDist");
+        this.zDist = compound.getInteger("zDist");
+        this.isOn = compound.getBoolean("isOn");
+        this.nextBlock = new BlockPos(
+        		compound.getInteger("nextX"),
+        		compound.getInteger("nextY"),
+        		compound.getInteger("nextZ"));
+        
     }
 
     public void writeToNBT(NBTTagCompound compound)
     {
         super.writeToNBT(compound);
+        
+        compound.setInteger("xDist", xDist);
+        compound.setInteger("yDist", yDist);
+        compound.setInteger("zDist", zDist);
+        compound.setBoolean("isOn", isOn);
+        compound.setInteger("nextX", nextBlock.getX());
+        compound.setInteger("nextY", nextBlock.getY());
+        compound.setInteger("nextZ", nextBlock.getZ());
+        
         NBTTagList nbttaglist = new NBTTagList();
 
         for (int i = 0; i < this.chestContents.length; ++i)
@@ -174,7 +231,12 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
      */
     public boolean isUseableByPlayer(EntityPlayer player)
     {
-        return this.worldObj.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+        return this.worldObj.getTileEntity(this.pos) != this ? false : 
+        	player.getDistanceSq(
+        			(double)this.pos.getX() + 0.5D,
+        			(double)this.pos.getY() + 0.5D,
+        			(double)this.pos.getZ() + 0.5D) 
+        			<= 64.0D;
     }
 
 
@@ -258,7 +320,6 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
                 this.worldObj.playSoundEffect(d2, (double)j + 0.5D, d0, 
                 		"random.chestclosed", 0.5F, this.worldObj.rand.nextFloat() * 0.1F + 0.9F);
             }
-
         }
         
         // Angle max is 1.0f
@@ -314,6 +375,7 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
      */
     public boolean isItemValidForSlot(int index, ItemStack stack)
     {
+    	if (index >= 27) return false;
         return true;
     }
 

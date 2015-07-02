@@ -18,9 +18,9 @@ public class BNWEventHandler implements IWorldGenerator
 			IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
 		switch(world.provider.getDimensionId())
 		{
-		case -1:  generateNether(world, random, chunkX*16, chunkZ*16);
-		case  0: generateSurface(world, random, chunkX*16, chunkZ*16);
-		case  1:     generateEnd(world, random, chunkX*16, chunkZ*16);
+		case -1:  generateNether(world, random, chunkX*16, chunkZ*16); break;
+		case  0: generateSurface(world, random, chunkX*16, chunkZ*16); break;
+		case  1:     generateEnd(world, random, chunkX*16, chunkZ*16); break;
 		}
 		
 	}
