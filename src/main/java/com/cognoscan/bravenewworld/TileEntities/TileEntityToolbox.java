@@ -14,6 +14,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
+import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -47,20 +48,84 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
     private int xDist;
     private int yDist;
     private int zDist;
-    private boolean isOn;
+    private int posSets;
     private BlockPos nextBlock;
+    private int miningCount;
+    
+    public TileEntityToolbox()
+    {
+    	super();
+        this.nextBlock = new BlockPos(0,0,0);
+    }
     
     public void setDist(int dim, BlockPos markerPos) {
-    	if (!isOn)
+    	if (posSets < 7)
     	{
     		switch(dim) {
-    		case 0: xDist = markerPos.getX(); break;
-    		case 1: yDist = markerPos.getY(); break;
-    		case 2: zDist = markerPos.getZ(); break;
+    		case 0: xDist = markerPos.getX(); posSets |= 0x1; break;
+    		case 1: yDist = markerPos.getY(); posSets |= 0x2; break;
+    		case 2: zDist = markerPos.getZ(); posSets |= 0x4; break;
     		}
-
-    		this.worldObj.destroyBlock(markerPos.east().down(), true);
+    		
+    		if (posSets == 7) {
+    			// Setup starting block to mine
+    			if (yDist > this.pos.getY()) {
+    				nextBlock = new BlockPos(this.pos.getX(), yDist, this.pos.getZ());
+    			} else {
+    				nextBlock = this.pos;
+    			}
+    			if (xDist > nextBlock.getX()) nextBlock.add(1, 0, 0); else nextBlock.add(-1, 0, 0);
+    			nextBlock.add(0,-1,0);
+    			if (zDist > nextBlock.getZ()) nextBlock.add(0, 0, 1); else nextBlock.add( 0, 0,-1);
+    			System.out.println("Starting to MINE");
+    		}
     	}
+    }
+    
+    // Mines blocks within the designated area
+    public void doMining() {
+    	if (posSets != 7) return;
+    	if (this.chestContents[30] == null) return;
+    	if (!(this.chestContents[30].getItem() instanceof ItemPickaxe)) return;
+    	
+    	
+    	miningCount++;
+    	if (miningCount < 4) return;
+    	miningCount = 0;
+    	
+    	System.out.println("Mined a block");
+    	
+    	ItemPickaxe pick = (ItemPickaxe) this.chestContents[30].getItem();
+    	Block toMine = this.worldObj.getBlockState(nextBlock).getBlock();
+    	
+    	//if (pick.canHarvestBlock(toMine)) {
+    		this.worldObj.destroyBlock(nextBlock, false);
+    	//}
+    	
+    	int x = nextBlock.getX();
+    	int y = nextBlock.getY();
+    	int z = nextBlock.getZ();
+    	
+    	x += (xDist > this.pos.getX()) ? 1 : -1;
+    	if (x == xDist) {
+    		x = this.pos.getX();
+    		x += (xDist > this.pos.getX()) ? 1 : -1;
+    		z += (zDist > this.pos.getZ()) ? 1 : -1;
+    		if (z == zDist) {
+    			z = this.pos.getZ();
+    			z += (zDist > this.pos.getZ()) ? 1 : -1;
+    			y--;
+    			if (yDist > this.pos.getY()) {
+    				if (y == this.pos.getY()) posSets = 8; // Stop mining
+    			} else {
+    				if (y == yDist) posSets = 8; // Stop mining
+    			}
+    		}
+    	}
+		
+    	nextBlock = new BlockPos(x,y,z);
+    	
+    	return;
     }
 
     public int getSizeInventory() { return 31; }
@@ -190,7 +255,7 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
         this.xDist = compound.getInteger("xDist");
         this.yDist = compound.getInteger("yDist");
         this.zDist = compound.getInteger("zDist");
-        this.isOn = compound.getBoolean("isOn");
+        this.posSets = compound.getInteger("posSets");
         this.nextBlock = new BlockPos(
         		compound.getInteger("nextX"),
         		compound.getInteger("nextY"),
@@ -205,7 +270,7 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
         compound.setInteger("xDist", xDist);
         compound.setInteger("yDist", yDist);
         compound.setInteger("zDist", zDist);
-        compound.setBoolean("isOn", isOn);
+        compound.setInteger("posSets", posSets);
         compound.setInteger("nextX", nextBlock.getX());
         compound.setInteger("nextY", nextBlock.getY());
         compound.setInteger("nextZ", nextBlock.getZ());
@@ -245,12 +310,15 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
      */
     public void update()
     {
+    	
         int i = this.pos.getX();
         int j = this.pos.getY();
         int k = this.pos.getZ();
         ++this.ticksSinceSync;
         float f;
 
+    	doMining();
+        
         // Refresh number of connected players on this inventory
         if (!this.worldObj.isRemote && this.numPlayersUsing != 0 && (this.ticksSinceSync + i + j + k) % 200 == 0)
         {
