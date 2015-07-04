@@ -2,23 +2,31 @@ package com.cognoscan.bravenewworld.TileEntities;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import com.cognoscan.bravenewworld.BraveNewWorld;
 import com.cognoscan.bravenewworld.Blocks.Toolbox;
 
 import net.minecraft.client.renderer.tileentity.TileEntityChestRenderer;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
+import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.gui.IUpdatePlayerListBox;
+import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
@@ -26,6 +34,8 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -77,7 +87,6 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
     			if (xDist > nextBlock.getX()) nextBlock.add(1, 0, 0); else nextBlock.add(-1, 0, 0);
     			nextBlock.add(0,-1,0);
     			if (zDist > nextBlock.getZ()) nextBlock.add(0, 0, 1); else nextBlock.add( 0, 0,-1);
-    			System.out.println("Starting to MINE");
     		}
     	}
     }
@@ -91,16 +100,68 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
     	
     	miningCount++;
     	if (miningCount < 4) return;
-    	miningCount = 0;
-    	
-    	System.out.println("Mined a block");
     	
     	ItemPickaxe pick = (ItemPickaxe) this.chestContents[30].getItem();
     	Block toMine = this.worldObj.getBlockState(nextBlock).getBlock();
     	
-    	//if (pick.canHarvestBlock(toMine)) {
-    		this.worldObj.destroyBlock(nextBlock, false);
-    	//}
+    	if (!this.worldObj.isAirBlock(nextBlock)) { 
+    		if (pick.canHarvestBlock(toMine)) {
+    			List<ItemStack> items;
+    			// Harvest direct if silk touch'd
+    			if (EnchantmentHelper.getEnchantmentLevel(Enchantment.silkTouch.effectId, this.chestContents[30]) > 0)
+    	        {
+    				int i = 0;
+    		        Item item = Item.getItemFromBlock(toMine);
+
+    		        if (item != null && item.getHasSubtypes())
+    		        {
+    		            i = toMine.getMetaFromState(this.worldObj.getBlockState(nextBlock));
+    		        }
+
+    		        items = new java.util.ArrayList<ItemStack>();
+    		        ItemStack itemstack = new ItemStack(item, 1, i);
+    		        items.add(itemstack);
+    	        }
+    	        else
+    	        {
+    	        	// Get itemstacks it would normally drop
+    	            int i = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, this.chestContents[30]);
+    	            items = toMine.getDrops(this.worldObj, nextBlock, this.worldObj.getBlockState(nextBlock), i);
+    	        }
+    			
+    			boolean mined = false;
+    			for (ItemStack stack : items)
+    			{
+    				if (this.mergeItemStack(stack)) {
+    					mined = true;
+    				}
+    			}
+    			if (mined) {
+    				this.worldObj.destroyBlock(nextBlock, false);
+    			
+    				// Damage the pickaxe if the block is hard and the pickaxe can be damaged.
+    				if (toMine.getBlockHardness(this.worldObj, nextBlock) != 0.0f) {
+    					if (this.chestContents[30].isItemStackDamageable())
+    					{
+    						// Attempt to damage item. If it is destroyed, decrease the stack.
+    						if (this.chestContents[30].attemptDamageItem(1, this.worldObj.rand))
+    						{
+    							--this.chestContents[30].stackSize;
+
+
+    							if (this.chestContents[30].stackSize < 0)
+    							{
+    								this.chestContents[30].stackSize = 0;
+    							}
+
+    							this.chestContents[30].setItemDamage(0);
+    						}
+    					}
+    				}
+    			}
+    			 miningCount = 0;
+    		}
+    	}
     	
     	int x = nextBlock.getX();
     	int y = nextBlock.getY();
@@ -127,6 +188,68 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
     	
     	return;
     }
+    
+    public boolean mergeItemStack(ItemStack stack) {
+
+        boolean flag1 = false;
+        int k = 0;
+
+        ItemStack itemstack1;
+
+        if (stack.isStackable())
+        {
+            while (stack.stackSize > 0 && k < 27)
+            {
+                itemstack1 = this.chestContents[k];
+
+                if (itemstack1 != null 
+                		&& itemstack1.getItem() == stack.getItem() 
+                		&& (!stack.getHasSubtypes() || stack.getMetadata() == itemstack1.getMetadata()) 
+                		&& ItemStack.areItemStackTagsEqual(stack, itemstack1))
+                {
+                    int l = itemstack1.stackSize + stack.stackSize;
+
+                    if (l <= stack.getMaxStackSize())
+                    {
+                        stack.stackSize = 0;
+                        itemstack1.stackSize = l;
+                        flag1 = true;
+                    }
+                    else if (itemstack1.stackSize < stack.getMaxStackSize())
+                    {
+                        stack.stackSize -= stack.getMaxStackSize() - itemstack1.stackSize;
+                        itemstack1.stackSize = stack.getMaxStackSize();
+                        flag1 = true;
+                    }
+                }
+                
+                ++k;
+            }
+        }
+
+        if (stack.stackSize > 0)
+        {
+        	k = 0;
+            
+            while (k < 27)
+            {
+                itemstack1 = this.chestContents[k];
+
+                if (itemstack1 == null) // Forge: Make sure to respect isItemValid in the slot.
+                {
+                	this.chestContents[k] = stack;
+                    stack.stackSize = 0;
+                    flag1 = true;
+                    break;
+                }
+
+                ++k;
+            }
+        }
+
+        return flag1;
+    }
+    
 
     public int getSizeInventory() { return 31; }
 
