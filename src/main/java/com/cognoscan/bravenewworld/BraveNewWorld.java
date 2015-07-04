@@ -134,9 +134,9 @@ public class BraveNewWorld
     	// Lichcraft Recipes
     	///////////////////////////////////////////////////////////////////
     	GameRegistry.addShapedRecipe(new ItemStack(arcaniteIngot),
-    			" A ",
+    			"AAA",
     			"ABA",
-    			" A ",
+    			"AAA",
     			'A', arcaniumDust,
     			'B', Items.iron_ingot);
     	
