@@ -2,6 +2,12 @@
 .idea/
 Thumbs.db
 ForgeModLoader-client*
+CREDITS-fml.txt
+LICENSE-fml.txt
+MinecraftForge-Credits.txt
+MinecraftForge-License.txt
+src/main/java/com/example/
+*-changelog.txt
 
 *.class
 
@@ -20,6 +26,7 @@ ForgeModLoader-client*
 .classpath
 .project
 .settings/
+.metadata/
 eclipse/
 
 *.swp
