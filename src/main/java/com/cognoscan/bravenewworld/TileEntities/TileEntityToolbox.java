@@ -71,10 +71,29 @@ public class TileEntityToolbox extends TileEntity implements IUpdatePlayerListBo
     public void setDist(int dim, BlockPos markerPos) {
     	if (posSets < 7)
     	{
+    		int dist;
     		switch(dim) {
-    		case 0: xDist = markerPos.getX(); posSets |= 0x1; break;
-    		case 1: yDist = markerPos.getY(); posSets |= 0x2; break;
-    		case 2: zDist = markerPos.getZ(); posSets |= 0x4; break;
+    		case 0:
+    			dist = markerPos.getX();
+    			if (dist > this.pos.getX()+1 || dist < this.pos.getX()-1) {
+    				xDist = dist;
+    				posSets |= 0x1;
+    			}
+    			break;
+    		case 1:
+    			dist = markerPos.getY();
+    			if (dist > this.pos.getY()+1 || dist < this.pos.getY()-1) {
+    				yDist = dist;
+    				posSets |= 0x2;
+    			}
+    			break;
+    		case 2:
+    			dist = markerPos.getZ();
+    			if (dist > this.pos.getZ()+1 || dist < this.pos.getZ()-1) {
+    				zDist = dist;
+    				posSets |= 0x4;
+    			}
+    			break;
     		}
     		
     		if (posSets == 7) {
